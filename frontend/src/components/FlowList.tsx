@@ -14,6 +14,7 @@ import {
   START_FILTER_KEY,
   END_FILTER_KEY,
   FLOW_LIST_REFETCH_INTERVAL_MS,
+  FORCE_REFETCH_ON_STAR,
 } from "../const";
 import { useAppSelector, useAppDispatch } from "../store";
 import { toggleFilterTag, toggleTagIntersectMode } from "../store/filter";
@@ -118,6 +119,7 @@ export function FlowList() {
 
   const onHeartHandler = async (flow: Flow) => {
     await starFlow({ id: flow.id, star: !flow.tags.includes("starred") });
+    if(FORCE_REFETCH_ON_STAR) refetch();
   };
 
   const navigate = useNavigate();
@@ -164,7 +166,30 @@ export function FlowList() {
     [transformedFlowData]
   )
 
+  useHotkeys('x', async () => {
+    if(transformedFlowData) {
+      let flow = transformedFlowData[flowIndex ?? 0]
+      await onHeartHandler(flow);
+    }
+  })
+
   useHotkeys('j', () => setFlowIndex(fi => Math.min((transformedFlowData?.length ?? 1)-1, fi + 1)), [transformedFlowData?.length]);
+  useHotkeys('w', () => {
+    if(transformedFlowData) {
+      let idAtIndex = transformedFlowData[flowIndex ?? 0].id;
+      if (idAtIndex != openedFlowID) {
+        let flowids = flowData?.map((flow, idx) => ([flow.id, idx]))
+        if (flowids) {
+          let found = flowids.filter((el)=>(el[0] == openedFlowID))
+          if (found.length > 0) {
+            let n = Number(found[0][1])
+            setFlowIndex(n)
+          }
+        }
+      }
+    }
+  }
+  );
   useHotkeys('k', () => setFlowIndex(fi => Math.max(0, fi - 1)));
   useHotkeys('i', () => {
     setShowFilters(true)
@@ -176,6 +201,12 @@ export function FlowList() {
     setShowFilters(true)
     if ((availableTags ?? []).includes("flag-out")) {
       dispatch(toggleFilterTag("flag-out"))
+    }
+  }, [availableTags]);
+  useHotkeys('t', () => {
+    setShowFilters(true)
+    if ((availableTags ?? []).includes("starred")) {
+      dispatch(toggleFilterTag("starred"))
     }
   }, [availableTags]);
   useHotkeys('r', () => refetch());
