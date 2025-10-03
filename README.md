@@ -97,7 +97,7 @@ Once this rule is seen in traffic, the `path_traversal` tag will automatically b
 >
 > Restart Docker containers.
 >
-> If database was only restarted (not dropped), try cleaning tags/signatures with `python wipe_tags.py`.
+> If database was only restarted (not dropped), try cleaning tags/signatures manually.
 
 ### eve.json
 Suricata alerts are read directly from the `eve.json` file. Because this file can get quite verbose when all extensions are enabled, it is recommended to strip the config down a fair bit. For example:
