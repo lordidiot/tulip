@@ -1,8 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface TulipFilterState {
+  filterFlags: string[];
+  filterFlagids: string[];
   includeTags: string[];
   excludeTags: string[];
+  tagIntersectionMode: "AND" | "OR";
   // startTick?: number;
   // endTick?: number;
   // service?: string;
@@ -12,6 +15,9 @@ export interface TulipFilterState {
 const initialState: TulipFilterState = {
   includeTags: [],
   excludeTags: [],
+  filterFlags: [],
+  filterFlagids: [],
+  tagIntersectionMode: "OR",
 };
 
 export const filterSlice = createSlice({
@@ -48,9 +54,22 @@ export const filterSlice = createSlice({
         }
       }
     },
+    toggleFilterFlags: (state, action: PayloadAction<string>) => {
+      state.filterFlags = state.filterFlags.includes(action.payload)
+          ? state.filterFlags.filter((t) => t !== action.payload)
+          : [...state.filterFlags, action.payload];
+    },
+    toggleFilterFlagids: (state, action: PayloadAction<string>) => {
+      state.filterFlagids = state.filterFlagids.includes(action.payload)
+          ? state.filterFlagids.filter((t) => t !== action.payload)
+          : [...state.filterFlagids, action.payload];
+    },
+    toggleTagIntersectMode: (state) => {
+      state.tagIntersectionMode = state.tagIntersectionMode == "AND" ? "OR" : "AND";
+    },
   },
 });
 
-export const { toggleFilterTag } = filterSlice.actions;
+export const { toggleFilterTag, toggleTagIntersectMode } = filterSlice.actions;
 
 export default filterSlice.reducer;
