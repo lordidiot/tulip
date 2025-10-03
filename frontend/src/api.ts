@@ -166,28 +166,28 @@ export const tulipApi = createApi({
       }),
       // TODO: optimistic cache update
 
-      // async onQueryStarted({ id, star }, { dispatch, queryFulfilled }) {
-      //   // `updateQueryData` requires the endpoint name and cache key arguments,
-      //   // so it knows which piece of cache state to update
-      //   const patchResult = dispatch(
-      //     tulipApi.util.updateQueryData("getFlows", undefined, (flows) => {
-      //       // The `flows` is Immer-wrapped and can be "mutated" like in createSlice
-      //       const flow = flows.find((flow) => flow._id.$oid === id);
-      //       if (flow) {
-      //         if (star) {
-      //           flow.tags.push("starred");
-      //         } else {
-      //           flow.tags = flow.tags.filter((tag) => tag != "starred");
-      //         }
-      //       }
-      //     })
-      //   );
-      //   try {
-      //     await queryFulfilled;
-      //   } catch {
-      //     patchResult.undo();
-      //   }
-      // },
+      async onQueryStarted({ id, star }, { dispatch, queryFulfilled }) {
+        // `updateQueryData` requires the endpoint name and cache key arguments,
+        // so it knows which piece of cache state to update
+        const patchResult = dispatch(
+          tulipApi.util.updateQueryData("getFlows", {service: "undefined", tags_include: [], tags_exclude:[]}, (flows) => {
+            // The `flows` is Immer-wrapped and can be "mutated" like in createSlice
+            const flow = flows.find((flow) => flow.id === id);
+            if (flow) {
+              if (star) {
+                flow.tags.push("starred");
+              } else {
+                flow.tags = flow.tags.filter((tag) => tag != "starred");
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
   }),
 });

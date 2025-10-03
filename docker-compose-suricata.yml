@@ -125,10 +125,22 @@ services:
     networks:
       - internal
     volumes:
-      - ${TRAFFIC_DIR_HOST}:${TRAFFIC_DIR_DOCKER}:ro,z
-    command: "./enricher -eve ${TRAFFIC_DIR_DOCKER}/eve.json"
+      - ${SURICATA_DIR_HOST}/log:/suricata
+      - ${TRAFFIC_DIR_HOST}:${TRAFFIC_DIR_DOCKER}:ro
+    command: "./enricher -eve /suricata/eve.json"
     environment:
       TIMESCALE: ${TIMESCALE}
+
+  suricata:
+    image: jasonish/suricata:7.0
+    restart: unless-stopped
+    volumes:
+      - ${TRAFFIC_DIR_HOST}:${TRAFFIC_DIR_DOCKER}:ro
+      - ${SURICATA_DIR_HOST}/log:/var/log/suricata
+      - ${SURICATA_DIR_HOST}/etc:/etc/suricata
+      - ${SURICATA_DIR_HOST}/lib:/var/lib/suricata
+    environment:
+      SURICATA_OPTIONS: "-l /var/log/suricata -v -r ${TRAFFIC_DIR_DOCKER} --pcap-file-continuous"
 
 volumes:
   timescale-data:
