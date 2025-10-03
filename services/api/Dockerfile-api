@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10
 
 COPY ./requirements.txt /app/requirements.txt
 
@@ -8,4 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-CMD python3 webservice.py
+STOPSIGNAL SIGINT
+
+CMD ["gunicorn", "-w", "3", "-t", "60", "--log-level", "debug", "--capture-output", "--enable-stdio-inheritance", "-b", "0.0.0.0:5000", "webservice:create_app()"]
