@@ -25,8 +25,6 @@ services:
       dockerfile: Dockerfile-frontend
     image: tulip-frontend:latest
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     expose:
       - 3000
     depends_on:
@@ -37,6 +35,19 @@ services:
     environment:
       API_SERVER_ENDPOINT: http://api:5000/
       VIRTUAL_HOST: tulip.h4xx.eu
+  
+  auth:
+    image: nginx:alpine
+    ports:
+      - "31337:80"
+    depends_on:
+      - frontend
+    networks:
+      - internal
+    volumes:
+      - ./services/auth/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./services/auth/htpasswd:/etc/nginx/.htpasswd:ro
+    restart: unless-stopped
 
   api:
     build:
